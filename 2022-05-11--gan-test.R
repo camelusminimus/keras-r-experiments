@@ -281,7 +281,7 @@ for (step in 1:iterations) {
       tibble(label=orig_labels,
              prob=b_predict,
              image=asplit(combined_images, 1)) |>
-      mutate(w_prob=min(0.8, max(0.2, prob))) |>
+      mutate(w_prob=pmin(0.8, pmax(0.2, prob))) |>
       group_by(label) |>
       sample_n(size=32, weight=dbeta(w_prob, 0.5, 0.5)) |> #plot((1:100)/100, dbeta((1:100)/100, 0.5, 0.5))
       ungroup() |>
