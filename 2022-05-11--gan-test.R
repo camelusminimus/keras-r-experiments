@@ -278,12 +278,12 @@ for (step in 1:iterations) {
     b_predict <- predict(discriminator, combined_images)
 
     image_tibble <-
-      tibble(label=orig_labels,
-             prob=b_predict,
+      tibble(label=orig_labels[,1],
+             prob=b_predict[,1],
              image=asplit(combined_images, 1)) |>
-      mutate(w_prob=pmin(0.8, pmax(0.2, prob))) |>
+      mutate(prob_weight=dbeta(pmin(0.95, pmax(0.05, prob)), 0.4, 0.4)) |> #plot((1:100)/100, dbeta(pmin(0.95, pmax(0.05,(1:100)/100)), 0.4, 0.4))
       group_by(label) |>
-      sample_n(size=32, weight=dbeta(w_prob, 0.5, 0.5)) |> #plot((1:100)/100, dbeta((1:100)/100, 0.5, 0.5))
+      sample_n(size=32, weight=prob_weight) |> 
       ungroup() |>
       mutate(image=map(image,
                         function(im_data) {
