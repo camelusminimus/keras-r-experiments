@@ -60,78 +60,38 @@ fs::dir_create(model_folder)
 
 # The Generator
 generator_input <- layer_input(shape = c(latent_dim), name='generator_latent_input')
-if (FALSE) {
-  generator_output <- generator_input |>
-    layer_dense(units = 7 * 7 * 32, use_bias = FALSE, ) |>
-    layer_activation_leaky_relu() |>
-    layer_reshape(target_shape = c(7, 7, 32)) |>
-    layer_conv_2d(filters = 512, kernel_size = 3, use_bias = T,
-                  padding = "same") |>
-    layer_activation_leaky_relu() %>%
-    layer_conv_2d_transpose(filters = 256, kernel_size = 3, use_bias = T,
-                            strides = 2, padding = "same") |>
-    layer_activation_leaky_relu() |>
-    layer_conv_2d_transpose(filters = 256, kernel_size = 3, use_bias = T,
-                            strides = 2, padding = "same") |>
-    layer_activation_leaky_relu() |>
-    layer_conv_2d(filters = 128, kernel_size = 5, use_bias = T,
-                  padding = "same") |>
-    layer_activation_leaky_relu() |>
-    #  layer_layer_normalization() |>
-    layer_conv_2d(filters = channels, kernel_size = 7,
-                  activation = "tanh", padding = "same") |>
-    layer_reshape(target_shape = c(height, width, channels))
-} else {
-  generator_output <- generator_input |>
-    layer_dense(units = 7 * 7 * 32, use_bias = FALSE, activation = 'gelu') |>
-    layer_reshape(target_shape = c(7, 7, 32)) |>
-    layer_conv_2d(filters = 512, kernel_size = 3, use_bias = T,
-                  padding = "same", activation = 'gelu') |>
-    layer_conv_2d_transpose(filters = 256, kernel_size = 3, use_bias = T,
-                            strides = 2, padding = "same", activation = 'gelu') |>
-    layer_conv_2d_transpose(filters = 256, kernel_size = 3, use_bias = T,
-                            strides = 2, padding = "same", activation = 'gelu') |>
-    layer_conv_2d(filters = 128, kernel_size = 5, use_bias = T,
-                  padding = "same", activation = 'gelu') |>
-    #  layer_layer_normalization() |>
-    layer_conv_2d(filters = channels, kernel_size = 7,
-                  activation = "tanh", padding = "same") |>
-    layer_reshape(target_shape = c(height, width, channels))
-}
+generator_output <- generator_input |>
+  layer_dense(units = 7 * 7 * 32, use_bias = FALSE, activation = 'gelu') |>
+  layer_reshape(target_shape = c(7, 7, 32)) |>
+  layer_conv_2d(filters = 512, kernel_size = 3, use_bias = T,
+                padding = "same", activation = 'gelu') |>
+  layer_conv_2d_transpose(filters = 256, kernel_size = 3, use_bias = T,
+                          strides = 2, padding = "same", activation = 'gelu') |>
+  layer_conv_2d_transpose(filters = 256, kernel_size = 3, use_bias = T,
+                          strides = 2, padding = "same", activation = 'gelu') |>
+  layer_conv_2d(filters = 128, kernel_size = 5, use_bias = T,
+                padding = "same", activation = 'gelu') |>
+  #  layer_layer_normalization() |>
+  layer_conv_2d(filters = channels, kernel_size = 7,
+                activation = "tanh", padding = "same") |>
+  layer_reshape(target_shape = c(height, width, channels))
+
 generator <- keras_model(generator_input, generator_output, name="generator")
 summary(generator)
 
 #The Discriminator
 discriminator_input <- layer_input(shape = c(height, width, channels), name='candidate_image')
-if (FALSE) {
-  discriminator_output <-
-    discriminator_input |>
-    layer_spatial_dropout_2d(rate=0.2, batch_size=batch_size) |>
-    layer_conv_2d(filters = 256, kernel_size = 3, padding = "same") |>
-    layer_activation_leaky_relu() |>
-    layer_conv_2d(filters = 256, kernel_size = 3, strides = 2, padding = "same") |>
-    layer_activation_leaky_relu() |>
-    layer_spatial_dropout_2d(rate=0.2, batch_size=batch_size) |>
-    layer_conv_2d(filters = 128, kernel_size = 3, strides = 2, padding = "same") |>
-    layer_activation_leaky_relu() |>
-    layer_conv_2d(filters = 4, kernel_size = 3, strides = 1, padding = "same") |>
-    layer_activation_leaky_relu() |>
-    layer_flatten() |>
-    layer_dropout(rate = 0.3) |>
-    layer_dense(units = 1, activation = "sigmoid")
-} else {
-  discriminator_output <-
-    discriminator_input |>
-    layer_spatial_dropout_2d(rate=0.2, batch_size=batch_size) |>
-    layer_conv_2d(filters = 256, kernel_size = 3, padding = "same", activation = 'gelu') |>
-    layer_conv_2d(filters = 256, kernel_size = 3, strides = 2, padding = "same", activation = 'gelu') |>
-    layer_spatial_dropout_2d(rate=0.2, batch_size=batch_size) |>
-    layer_conv_2d(filters = 128, kernel_size = 3, strides = 2, padding = "same", activation = 'gelu') |>
-    layer_conv_2d(filters = 4, kernel_size = 3, strides = 1, padding = "same", activation = 'gelu') |>
-    layer_flatten() |>
-    layer_dropout(rate = 0.3) |>
-    layer_dense(units = 1, activation = "sigmoid")
-}
+discriminator_output <-
+  discriminator_input |>
+  layer_spatial_dropout_2d(rate=0.2, batch_size=batch_size) |>
+  layer_conv_2d(filters = 256, kernel_size = 3, padding = "same", activation = 'gelu') |>
+  layer_conv_2d(filters = 256, kernel_size = 3, strides = 2, padding = "same", activation = 'gelu') |>
+  layer_spatial_dropout_2d(rate=0.2, batch_size=batch_size) |>
+  layer_conv_2d(filters = 128, kernel_size = 3, strides = 2, padding = "same", activation = 'gelu') |>
+  layer_conv_2d(filters = 4, kernel_size = 3, strides = 1, padding = "same", activation = 'gelu') |>
+  layer_flatten() |>
+  layer_dropout(rate = 0.3) |>
+  layer_dense(units = 1, activation = "sigmoid")
 
 discriminator <- keras_model(discriminator_input, discriminator_output, name="discriminator")
 summary(discriminator)
