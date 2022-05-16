@@ -235,6 +235,7 @@ for (step in 1:iterations) {
   if (step %% images_checkpoint_iteration_modulus == 0) {
     cat("image checkpoint: ", ceiling(step / images_checkpoint_iteration_modulus), "\n");
 
+    #TODO: What is the difference to predict_on_batch?
     b_predict <- predict(discriminator, combined_images)
 
     image_tibble <-
